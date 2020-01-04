@@ -28,12 +28,13 @@ import static com.delight.currencyapp.BuildConfig.API_KEY;
 
 public class MainActivity extends AppCompatActivity {
     private ArrayList<String> ratesValues;
-    private Spinner spinner1,spinner2;
+    private Spinner spinner1, spinner2;
     private EditText editText;
     private TextView textView;
-    private double firstCurrency,secondCurrency;
+    private double firstCurrency, secondCurrency;
     private int i;
     private Object[] ratesTitles;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void spinnerListeners(){
+    private void spinnerListeners() {
         spinner1.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -56,26 +57,25 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
+                firstCurrency = Double.parseDouble(ratesValues.get(0));
 
             }
         });
         spinner2.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-//                i = spinner1.getSelectedItemPosition();
                 secondCurrency = Double.parseDouble(ratesValues.get(position));
-
-//                Toast.makeText(getApplicationContext(),"position " + position +" " + i, LENGTH_LONG).show();
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-
+                firstCurrency = Double.parseDouble(ratesValues.get(0));
             }
 
         });
     }
-    private void initView(){
+
+    private void initView() {
         spinner1 = findViewById(R.id.spinner1);
         spinner2 = findViewById(R.id.spinner2);
         editText = findViewById(R.id.edit_text);
@@ -83,10 +83,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
-
-    private void getCurrency(){
+    private void getCurrency() {
         RetrofitBuilder.getService().exchangeRates(API_KEY)
                 .enqueue(new Callback<JsonObject>() {
                     @Override
@@ -99,50 +96,48 @@ public class MainActivity extends AppCompatActivity {
                             ratesValues.add(String.valueOf(rates.getAsJsonPrimitive(ratesTitle.toString())));
                         }
                         ArrayAdapter arrayAdapter = new ArrayAdapter(getApplicationContext()
-                                ,android.R.layout.simple_list_item_1,ratesTitles);
+                                , android.R.layout.simple_list_item_1, ratesTitles);
                         spinner1.setAdapter(arrayAdapter);
                         spinner2.setAdapter(arrayAdapter);
-                        Log.e("tag", "onResponse: " + response.code() );
-
+                        Log.e("tag", "onResponse: " + response.code());
 
 
                     }
 
                     @Override
                     public void onFailure(Call<JsonObject> call, Throwable t) {
-                        Toast.makeText(getApplicationContext(),t.getLocalizedMessage(), LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), t.getLocalizedMessage(), LENGTH_LONG).show();
                     }
                 });
     }
 
-    private void showResult(){
-            editText.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+    private void showResult() {
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (s != null && s.length() > 0) {
+                    textView.setText(calcRates(String.valueOf(s), firstCurrency, secondCurrency));
+                } else {
+                    textView.setText("");
                 }
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-                }
-
-                @Override
-                public void afterTextChanged(Editable s) {
-                    if (s != null && s.length() > 0) {
-                        textView.setText(calcRates(String.valueOf(s), firstCurrency, secondCurrency));
-                    }else {
-                        textView.setText("");
-                    }
-                }
-            });
+            }
+        });
     }
 
-    private String calcRates(String values,double fc,double sc){
-      double result = ((Double.parseDouble(values)/fc)*sc);
+    private String calcRates(String values, double fc, double sc) {
+        double result = ((Double.parseDouble(values) / fc) * sc);
 
-      return String.valueOf(result);
+        return String.valueOf(result);
     }
-
-
+    
 }
